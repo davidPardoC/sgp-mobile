@@ -1,26 +1,72 @@
-import React, { useState } from "react";
-import { View, TextInput, StyleSheet, Text, Modal } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  TextInput,
+  StyleSheet,
+  Text,
+  Modal,
+  FlatList,
+} from "react-native";
 import { Icon } from "react-native-elements";
-import ModalAddOrder from "../components/modal-add-order";
+import ModalAddProduct from "../components/modal-add-product";
+import ProductCard from "../components/product-card";
 
 export default function OrderDetail() {
   const [showCheck, setShowCheck] = useState(false);
+  const [modal, showModal] = useState(false);
+  const [cliente, setCliente] = useState("");
+  const [productos, setProductos] = useState([]);
+
+  useEffect(() => {
+    if (productos.length > 0) {
+      setShowCheck(true);
+    }
+  }, [productos]);
+
+  const callbackModal = () => {
+    showModal(false);
+  };
+
+  const addProduct = (obj) => {
+    setProductos([...productos, obj]);
+    console.log(productos);
+  };
 
   return (
     <View style={{ height: "100%" }}>
-      <Modal>
-        <ModalAddOrder />
+      <Modal
+        hardwareAccelerated
+        animationType="fade"
+        visible={modal}
+        transparent={true}
+        onRequestClose={() => {
+          showModal(false);
+        }}
+      >
+        <ModalAddProduct callback={callbackModal} addProduct={addProduct} />
       </Modal>
-      <TextInput style={Styles.input} placeholder="CODIGO CLIENTE" />
+      <TextInput
+        style={Styles.input}
+        placeholder="CODIGO CLIENTE"
+        onChangeText={(e) => {
+          setCliente(e);
+        }}
+      />
       <Text style={{ marginRight: "auto", marginLeft: "auto", fontSize: 20 }}>
-        0001
+        {cliente}
       </Text>
+
+      <FlatList
+        style={Styles.lista}
+        data={productos}
+        renderItem={({ item }) => <ProductCard />}
+      ></FlatList>
+
       <View
         style={{
           display: "flex",
           flexDirection: "row",
           justifyContent: "space-between",
-          marginTop: "130%",
           padding: "3%",
         }}
       >
@@ -28,7 +74,7 @@ export default function OrderDetail() {
           {showCheck && (
             <Icon
               name="check"
-              reverse="true"
+              reverse
               color="#00db66"
               onPress={() => {
                 setShowCheck(false);
@@ -41,10 +87,10 @@ export default function OrderDetail() {
         <View>
           <Icon
             name="add"
-            reverse="true"
+            reverse
             color="#fa82b6"
             onPress={() => {
-              setShowCheck(true);
+              showModal(true);
             }}
             size={30}
           />
@@ -64,5 +110,8 @@ const Styles = StyleSheet.create({
     marginRight: "auto",
     marginLeft: "auto",
     marginTop: "3%",
+  },
+  lista: {
+    minHeight:'5%'
   },
 });
